@@ -3,7 +3,7 @@ defmodule DayThreeTest do
 
   @tag :three
   test "parse claim" do
-    assert DayThree.parse_claim("#1 @ 1,3: 4x4") == {1, 1, 3, 4, 4}
+    assert DayThree.parse_claim("#1 @ 1,3: 4x4") == [1, 3, 4, 4]
   end
 
   test "count overlaped" do
