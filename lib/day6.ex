@@ -17,8 +17,9 @@ defmodule Day6 do
   def get_largest_area(string) when is_binary(string) do
     coordinades_list = parse_coordinates(string)
     extremes = get_extremes(coordinades_list)
+
     finite_coordinades = get_finite_coordinates(coordinades_list, extremes)
-    closes_map = get_closest_location_map(coordinades_list, extremes)
+    closes_map = get_closest_location_map(coordinades_list, {-1000..1000, -1000..1000})
 
     {_, v} =
       closes_map
