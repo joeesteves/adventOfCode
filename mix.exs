@@ -1,11 +1,11 @@
-defmodule AdventOfCode.MixProject do
+defmodule Day4.MixProject do
   use Mix.Project
 
   def project do
     [
-      app: :advent_of_code,
+      app: :day4,
       version: "0.1.0",
-      elixir: "~> 1.7",
+      elixir: "~> 1.8-dev",
       start_permanent: Mix.env() == :prod,
       deps: deps()
     ]
@@ -21,6 +21,7 @@ defmodule AdventOfCode.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
+      {:nimble_parsec, "~> 0.2"}
       # {:dep_from_hexpm, "~> 0.3.0"},
       # {:dep_from_git, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"},
     ]
