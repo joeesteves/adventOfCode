@@ -26,17 +26,23 @@ defmodule Day7 do
 
   def build_deps_map([], _, acc), do: acc
 
-  def drive(deps_map, acc) do
-    {fullfilled_letter, _} =
-      Enum.find(deps_map, fn {_, {deps, _}} ->
-        deps -- acc == []
-      end)
 
-    drive(Map.delete(deps_map, fullfilled_letter), [fullfilled_letter | acc]))
-  end
+  def drive(deps_map, acc) when is_map(deps_map) do
+    next_step =
+    Enum.find(deps_map, fn {_, {deps, _}} ->
+      deps -- acc == []
+    end)
 
-  def drive(%{}, acc), do: acc
+    case next_step do
+      {fullfilled_letter, _} ->
+        drive(Map.delete(deps_map, fullfilled_letter), [fullfilled_letter | acc])
 
+        nil ->
+          drive(:halt, acc)
+        end
+      end
+
+    def drive(:halt, acc), do: acc |> Enum.reverse |> Enum.join
 
   defp get_origins(letter, [[o, letter] | tail], acc), do: get_origins(letter, tail, [o | acc])
   defp get_origins(letter, [_ | tail], acc), do: get_origins(letter, tail, acc)

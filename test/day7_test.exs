@@ -44,6 +44,6 @@ defmodule Day7Test do
   end
 
   test "drive" do
-    assert Day7.drive(@deps_map,[], []) == "CABDFE"
+    assert Day7.drive(@deps_map, []) == "CABDFE"
   end
 end
