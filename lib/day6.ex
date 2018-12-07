@@ -16,6 +16,7 @@ defmodule Day6 do
   """
   def get_area_whitin_distance(string, distance) do
     coordinates_list = parse_coordinates(string)
+
     {x_range, y_range} = get_extremes(coordinates_list)
 
     safe_coordinates =
