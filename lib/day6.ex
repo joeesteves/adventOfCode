@@ -6,6 +6,42 @@ defmodule Day6 do
   @doc """
   Gets the largest finite area
 
+      iex> Day6.get_area_whitin_distance("1, 1
+      ...>1, 6
+      ...>8, 3
+      ...>3, 4
+      ...>5, 5
+      ...>8, 9", 32)
+      16
+  """
+  def get_area_whitin_distance(string, distance) do
+    coordinates_list = parse_coordinates(string)
+    {x_range, y_range} = get_extremes(coordinates_list)
+
+    safe_coordinates =
+      Enum.reduce(x_range, MapSet.new(), fn x, safe_cordinates ->
+        Enum.reduce(y_range, safe_cordinates, fn y, safe_cordinates ->
+          if is_whitin_distance({x, y}, distance, coordinates_list) do
+            MapSet.put(safe_cordinates, {x, y})
+          else
+            safe_cordinates
+          end
+        end)
+      end)
+
+    MapSet.size(safe_coordinates)
+  end
+
+  def is_whitin_distance(target, distance, coordinates_list) do
+    total = Enum.reduce(coordinates_list, 0, fn coordinate, acc ->
+      acc = get_distance(target, coordinate) + acc
+    end)
+    total < distance
+  end
+
+  @doc """
+  Gets the largest finite area
+
       iex> Day6.get_largest_area("1, 1
       ...>1, 6
       ...>8, 3
@@ -15,13 +51,13 @@ defmodule Day6 do
       17
   """
   def get_largest_area(string) when is_binary(string) do
-    coordinades_list = parse_coordinates(string)
-    extremes = get_extremes(coordinades_list)
+    coordinates_list = parse_coordinates(string)
+    extremes = get_extremes(coordinates_list)
     frame = get_frame_from_range(extremes)
 
-    closes_map = get_closest_location_map(coordinades_list, extremes)
+    closes_map = get_closest_location_map(coordinates_list, extremes)
 
-    frame_coordinates = get_closest_location_map(coordinades_list, frame)
+    frame_coordinates = get_closest_location_map(coordinates_list, frame)
 
     {_, v} =
       closes_map
