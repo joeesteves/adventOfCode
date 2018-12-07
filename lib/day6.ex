@@ -4,7 +4,7 @@ defmodule Day6 do
   """
 
   @doc """
-  Gets the larges finite area
+  Gets the largest finite area
 
       iex> Day6.get_largest_area("1, 1
       ...>1, 6
@@ -17,16 +17,18 @@ defmodule Day6 do
   def get_largest_area(string) when is_binary(string) do
     coordinades_list = parse_coordinates(string)
     extremes = get_extremes(coordinades_list)
+    frame = get_frame_from_range(extremes)
 
-    finite_coordinades = get_finite_coordinates(coordinades_list, extremes)
-    closes_map = get_closest_location_map(coordinades_list, {-1000..1000, -1000..1000})
+    closes_map = get_closest_location_map(coordinades_list, extremes)
+
+    frame_coordinates = get_closest_location_map(coordinades_list, frame)
+    IO.inspect frame_coordinates
 
     {_, v} =
       closes_map
       |> Enum.filter(fn {k, _} ->
-        k in finite_coordinades
+        k not in frame_coordinates && k != {9999, 9999}
       end)
-      |> IO.inspect()
       |> Enum.max_by(fn {_, v} -> v end)
       |> IO.inspect()
 
@@ -51,8 +53,15 @@ defmodule Day6 do
     Enum.reduce(x_range, %{}, fn x, acc ->
       Enum.reduce(y_range, acc, fn y, acc ->
         location = get_closest_location_from_coordinate(locations, {x, y})
-        Map.update(acc, location, 1, &(&1 + 1))
+        Map.update(acc, location, 1, &(&1+1))
       end)
+    end)
+  end
+
+  def get_closest_location_map(locations, frame_list) do
+    Enum.reduce(frame_list, MapSet.new, fn {x,y}, acc ->
+      location = get_closest_location_from_coordinate(locations, {x, y})
+      MapSet.put(acc, location)
     end)
   end
 
@@ -95,6 +104,26 @@ defmodule Day6 do
             {9999, 9999}
         end
     end
+  end
+
+  @doc """
+      iex> Day6.get_frame_from_range({1..3, 1..3})
+      [{1,1},{1,2},{1,3},{2,1},{2,3},{3,1},{3,2},{3,3}]
+  """
+  def get_frame_from_range({x_range, y_range}) do
+    x_min..x_max = x_range
+    y_min..y_max = y_range
+
+    Enum.reduce(x_range, [], fn x, acc ->
+      Enum.reduce(y_range, acc, fn y, acc ->
+        cond do
+          x_min == x || x_max == x -> [{x, y} | acc]
+          y_min == y || y_max == y -> [{x, y} | acc]
+          true -> acc
+        end
+      end)
+    end)
+    |> Enum.reverse()
   end
 
   def get_distance({x, y}, {x_target, y_target}) do
