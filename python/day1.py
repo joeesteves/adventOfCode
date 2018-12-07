@@ -1,4 +1,4 @@
-# https://github.com/pietroppeter/AdventOfCode2018/
+# https://githu b.com/pietroppeter/AdventOfCode2018/
 # Example from @pietroppeter
 
 with open('../data/day1.txt') as f:
