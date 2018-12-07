@@ -22,7 +22,6 @@ defmodule Day6 do
     closes_map = get_closest_location_map(coordinades_list, extremes)
 
     frame_coordinates = get_closest_location_map(coordinades_list, frame)
-    IO.inspect frame_coordinates
 
     {_, v} =
       closes_map
@@ -30,7 +29,6 @@ defmodule Day6 do
         k not in frame_coordinates && k != {9999, 9999}
       end)
       |> Enum.max_by(fn {_, v} -> v end)
-      |> IO.inspect()
 
     v
   end
@@ -53,13 +51,13 @@ defmodule Day6 do
     Enum.reduce(x_range, %{}, fn x, acc ->
       Enum.reduce(y_range, acc, fn y, acc ->
         location = get_closest_location_from_coordinate(locations, {x, y})
-        Map.update(acc, location, 1, &(&1+1))
+        Map.update(acc, location, 1, &(&1 + 1))
       end)
     end)
   end
 
   def get_closest_location_map(locations, frame_list) do
-    Enum.reduce(frame_list, MapSet.new, fn {x,y}, acc ->
+    Enum.reduce(frame_list, MapSet.new(), fn {x, y}, acc ->
       location = get_closest_location_from_coordinate(locations, {x, y})
       MapSet.put(acc, location)
     end)
@@ -131,6 +129,24 @@ defmodule Day6 do
   end
 
   @doc """
+  Gets extremas in ranges from coordinates [{x, y},...]
+
+      iex> Day6.get_extremes([{1,1}, {1,6}, {8,3}, {3,4}, {5,5}, {8,9}])
+      {1..8,1..9}
+  """
+  def get_extremes([{x, y} | rest]) do
+    get_extremes(rest, {x..x, y..y})
+  end
+
+  def get_extremes([{x, y} | rest], {x_min..x_max, y_min..y_max}) do
+    x_extremes = ((x < x_min && x) || x_min)..((x > x_max && x) || x_max)
+    y_extremes = ((y < y_min && y) || y_min)..((y > y_max && y) || y_max)
+    get_extremes(rest, {x_extremes, y_extremes})
+  end
+
+  def get_extremes(_, extremes), do: extremes
+
+  @doc """
   Parse text into coordinate collection [{x, y},...]
 
       iex> Day6.parse_coordinates("1, 1
@@ -149,38 +165,4 @@ defmodule Day6 do
       |> List.to_tuple()
     end)
   end
-
-  @doc """
-  Gets finite coordinates [{x, y},...]
-
-      iex> Day6.get_finite_coordinates([{1,1}, {1,6}, {8,3}, {3,4}, {5,5}, {8,9}], {1..8, 1..9})
-      [{3,4}, {5,5}]
-  """
-  def get_finite_coordinates(coordinates, extremes) do
-    {x_min..x_max, y_min..y_max} = extremes
-    x_range = (x_min + 1)..(x_max - 1)
-    y_range = (y_min + 1)..(y_max - 1)
-
-    Enum.filter(coordinates, fn {x, y} ->
-      x in x_range && y in y_range
-    end)
-  end
-
-  @doc """
-  Gets extremas in ranges from coordinates [{x, y},...]
-
-      iex> Day6.get_extremes([{1,1}, {1,6}, {8,3}, {3,4}, {5,5}, {8,9}])
-      {1..8,1..9}
-  """
-  def get_extremes([{x, y} | rest]) do
-    get_extremes(rest, {x..x, y..y})
-  end
-
-  def get_extremes([{x, y} | rest], {x_min..x_max, y_min..y_max}) do
-    x_extremes = ((x < x_min && x) || x_min)..((x > x_max && x) || x_max)
-    y_extremes = ((y < y_min && y) || y_min)..((y > y_max && y) || y_max)
-    get_extremes(rest, {x_extremes, y_extremes})
-  end
-
-  def get_extremes(_, extremes), do: extremes
 end

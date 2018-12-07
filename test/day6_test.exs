@@ -12,6 +12,7 @@ defmodule Day6Test do
     4, 6
     6, 4
     """
+
     assert Day6.get_largest_area(input) == 3
   end
 
