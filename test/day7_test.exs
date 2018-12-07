@@ -22,22 +22,28 @@ defmodule Day7Test do
 
   @sorted_letters ["A", "B", "C", "D", "E", "F"]
 
+  @deps_map %{
+    "C" => {[], ["A", "F"]},
+    "A" => {["C"], ["B", "D"]},
+    "B" => {["A"], ["E"]},
+    "E" => {["B", "D", "F"], []},
+    "D" => {["A"], ["E"]},
+    "F" => {["C"], ["E"]},
+  }
+
   test "parse input" do
-    Day7.parse(@input) == @steps
+    assert Day7.parse(@input) == @steps
   end
 
   test "get all letters" do
-    Day7.get_all_letters_az(@steps) == @sorted_letters
+    assert Day7.get_all_letters_az(@steps) == @sorted_letters
   end
 
   test "build deps map" do
-    Day7.build_deps_map(@steps, @sorted_letters) == %{
-      "C" => {[], ["A", "F"]},
-      "A" => {["C"], ["B", "D"]},
-      "B" => {["A"], ["E"]},
-      "E" => {["F", "D", "B"], []},
-      "D" => {["A"], ["E"]},
-      "F" => {["C"], ["E"]},
-    }
+    assert Day7.build_deps_map(@sorted_letters, @steps, %{}) == @deps_map
+  end
+
+  test "drive" do
+    assert Day7.drive(@deps_map,[], []) == "CABDFE"
   end
 end
