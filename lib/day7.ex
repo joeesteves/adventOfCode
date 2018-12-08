@@ -8,6 +8,15 @@ defmodule Day7 do
     |> drive([])
   end
 
+  def bundle2(input) do
+    steps = parse(input)
+
+    steps
+    |> get_all_letters_az
+    |> build_deps_map(steps, %{})
+    |> timer(5, 60)
+  end
+
   def parse(string) do
     String.split(string, "\n", trim: true)
     |> Enum.map(fn line ->
@@ -36,13 +45,14 @@ defmodule Day7 do
   def build_deps_map([], _, acc), do: acc
 
   def prepare_data(deps_map, secs) do
-    {k, {_, dest}} = Enum.find(deps_map, fn {_, {deps, _}} -> deps == [] end)
-
-    available = %{k => {key_to_time(k, secs), dest}}
+    available =
+      Enum.filter(deps_map, fn {_, {deps, _}} -> deps == [] end)
+      |> Enum.map(fn {k, {deps, dest}} -> {k, {key_to_time(k, secs), deps, dest}} end)
+      |> Enum.into(%{})
 
     un_available =
-      Map.delete(deps_map, k)
-      |> Enum.map(fn {k, {_, dest}} -> {k, {key_to_time(k, secs), dest}} end)
+      Map.drop(deps_map, Map.keys(available))
+      |> Enum.map(fn {k, {deps, dest}} -> {k, {key_to_time(k, secs), deps, dest}} end)
       |> Enum.into(%{})
 
     {available, un_available}
@@ -58,28 +68,72 @@ defmodule Day7 do
 
   def timer(deps_map, workers, add_time) do
     {available, not_available} = prepare_data(deps_map, add_time)
-    timer(available, %{}, not_available, workers, 0)
+    timer([], available, %{}, not_available, workers, 0)
   end
 
-  def timer(wip, available, not_available, workers, acc) do
+  def timer(finished_acc, wip, available, not_available, workers, acc) when wip == %{} do
+    acc
+  end
+
+  def timer(finished_acc, wip, available, not_available, workers, acc) do
+    # Removes one to remain
     wip =
-      Enum.map(wip, fn {k, {remain, dest}} ->
-        {k, {remain - 1, dest}}
+      Enum.map(wip, fn {k, {remain, deps, dest}} ->
+        {k, {remain - 1, deps, dest}}
       end)
       |> Enum.into(%{})
 
-    pass_to_available =
-      Enum.filter(wip, fn {_, {remain, _}} ->
+    # finished
+    finished =
+      Enum.filter(wip, fn {k, {remain, _, _}} ->
         remain == 0
       end)
-      |> Enum.flat_map(fn {_, {_, dest}} -> dest end)
 
+    finished_keys =
+      finished
+      |> Enum.map(fn {k, _} -> k end)
 
+    wip = Map.drop(wip, finished_keys)
+    finished_acc = finished_keys ++ finished_acc
 
+    # update not available
+    pass_to_available_keys =
+      finished
+      |> Enum.flat_map(fn {_, {_, deps, dest}} -> dest end)
+      |> Enum.filter(fn pk ->
+        case Map.get(not_available, pk) do
+          {_, deps, dest} ->
+            deps -- finished_acc == []
 
+          nil ->
+            false
+        end
+      end)
+
+    pass_to_available =
+      Enum.filter(
+        not_available,
+        fn {k, _} -> k in pass_to_available_keys end
+      )
+      |> Enum.into(%{})
+
+    not_available = Map.drop(not_available, pass_to_available_keys)
+
+    # update available
+    available = Map.merge(available, pass_to_available) |> Enum.sort() |> Enum.into(%{})
+
+    wip_can_receive = workers - (Map.keys(wip) |> length)
+
+    going_to_work = Enum.take(available, wip_can_receive) |> Enum.into(%{})
+
+    # update work in progress
+    wip = Map.merge(wip, going_to_work)
+    going_to_work_keys = Map.keys(going_to_work)
+
+    available = Map.drop(available, going_to_work_keys)
+
+    timer(finished_acc, wip, available, not_available, workers, acc + 1)
   end
-
-  def timer(%{}, available, not_available, workers, acc), do: acc
 
   def drive(deps_map, acc) when is_map(deps_map) do
     next_step =

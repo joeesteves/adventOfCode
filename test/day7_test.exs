@@ -31,13 +31,13 @@ defmodule Day7Test do
     "F" => {["C"], ["E"]}
   }
 
-  @prepared_data {%{"C" => {3, ["A", "F"]}},
+  @prepared_data {%{"C" => {3, [], ["A", "F"]}},
                   %{
-                    "A" => {1, ["B", "D"]},
-                    "B" => {2, ["E"]},
-                    "E" => {5, []},
-                    "D" => {4, ["E"]},
-                    "F" => {6, ["E"]}
+                    "A" => {1, ["C"], ["B", "D"]},
+                    "B" => {2, ["A"], ["E"]},
+                    "E" => {5, ["B", "D", "F"], []},
+                    "D" => {4, ["A"], ["E"]},
+                    "F" => {6, ["C"], ["E"]}
                   }}
 
   test "parse input" do
@@ -56,15 +56,19 @@ defmodule Day7Test do
     assert Day7.drive(@deps_map, []) == "CABDFE"
   end
 
-  @tag :tag
   test "prepare_data" do
-    Day7.prepare_data(@deps_map, 0) == @prepared_data
+    assert Day7.prepare_data(@deps_map, 0) == @prepared_data
   end
 
+  @tag :tag
   test "timer" do
     # last 3 workers, adicional seconds, acc(time) starting of 0
-    assert Day7.timer(@deps_map, 2, 0, 0) == 15
-    # assert Day7.timer(%{}, [], [], @deps_map, 3, 0, 0) == 13
-    # assert Day7.timer([], [], [], @deps_map, 2, 0, 0) == 21
+    assert Day7.timer(@deps_map, 2, 0) == 15
+    assert Day7.timer(@deps_map, 3, 0) == 14
+    assert Day7.timer(@deps_map, 1, 0) == 21
+
+    assert Day7.timer(@deps_map, 1, 3) == 39
+    assert Day7.timer(@deps_map, 3, 3) == 25
+
   end
 end
