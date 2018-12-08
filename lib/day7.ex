@@ -1,4 +1,12 @@
 defmodule Day7 do
+  def bundle(input) do
+    steps = parse(input)
+
+    steps
+    |> get_all_letters_az
+    |> build_deps_map(steps, %{})
+    |> drive([])
+  end
   def parse(string) do
     String.split(string, "\n", trim: true)
     |> Enum.map(fn line ->
