@@ -28,8 +28,17 @@ defmodule Day7Test do
     "B" => {["A"], ["E"]},
     "E" => {["B", "D", "F"], []},
     "D" => {["A"], ["E"]},
-    "F" => {["C"], ["E"]},
+    "F" => {["C"], ["E"]}
   }
+
+  @prepared_data {%{"C" => {3, ["A", "F"]}},
+                  %{
+                    "A" => {1, ["B", "D"]},
+                    "B" => {2, ["E"]},
+                    "E" => {5, []},
+                    "D" => {4, ["E"]},
+                    "F" => {6, ["E"]}
+                  }}
 
   test "parse input" do
     assert Day7.parse(@input) == @steps
@@ -45,5 +54,17 @@ defmodule Day7Test do
 
   test "drive" do
     assert Day7.drive(@deps_map, []) == "CABDFE"
+  end
+
+  @tag :tag
+  test "prepare_data" do
+    Day7.prepare_data(@deps_map, 0) == @prepared_data
+  end
+
+  test "timer" do
+    # last 3 workers, adicional seconds, acc(time) starting of 0
+    assert Day7.timer(@deps_map, 2, 0, 0) == 15
+    # assert Day7.timer(%{}, [], [], @deps_map, 3, 0, 0) == 13
+    # assert Day7.timer([], [], [], @deps_map, 2, 0, 0) == 21
   end
 end
