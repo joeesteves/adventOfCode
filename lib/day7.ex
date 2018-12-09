@@ -71,7 +71,7 @@ defmodule Day7 do
     timer([], available, %{}, not_available, workers, 0)
   end
 
-  def timer(finished_acc, wip, available, not_available, workers, acc) when wip == %{} do
+  def timer(_finished_acc, wip, _available, _not_available, _workers, acc) when wip == %{} do
     acc
   end
 
@@ -85,7 +85,7 @@ defmodule Day7 do
 
     # finished
     finished =
-      Enum.filter(wip, fn {k, {remain, _, _}} ->
+      Enum.filter(wip, fn {_k, {remain, _, _}} ->
         remain == 0
       end)
 
@@ -99,10 +99,10 @@ defmodule Day7 do
     # update not available
     pass_to_available_keys =
       finished
-      |> Enum.flat_map(fn {_, {_, deps, dest}} -> dest end)
+      |> Enum.flat_map(fn {_, {_, _deps, dest}} -> dest end)
       |> Enum.filter(fn pk ->
         case Map.get(not_available, pk) do
-          {_, deps, dest} ->
+          {_, deps, _dest} ->
             deps -- finished_acc == []
 
           nil ->
