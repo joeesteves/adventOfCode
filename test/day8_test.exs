@@ -11,8 +11,3 @@ defmodule Day8Tesd do
     assert Day8.root_value(@input) == 66
   end
 end
-
-A    B 33          C    D 99
-2 3 2 1 [0 1 99] 2 3 0 3 [33] 2 1 [200] [99] 2 1 1 2
-
-23 {21, 99}
