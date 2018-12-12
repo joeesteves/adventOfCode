@@ -43,6 +43,8 @@ defmodule Day8 do
   @spec parse_numbers2([integer], [integer], [integer], [integer]) :: integer
   def parse_numbers2(left, [childs_q, metadata_q | rest], right, child_values)
       when childs_q > 0 do
+        IO.inspect "CHAU"
+        IO.inspect child_values
     left = left ++ [childs_q, metadata_q]
     parse_numbers2(left, rest, right, [[] | child_values])
   end
@@ -51,20 +53,25 @@ defmodule Day8 do
     {metadata, rest} = Enum.split(rest, metadata_q)
 
     going_back =
-      case left do
-        [] ->
-          true
+    case left do
+      [] ->
+        true
 
         _ ->
           {_, [c, _]} = Enum.split(left, -2)
           c - 1 == 0
-      end
+        end
+    IO.inspect going_back
+    IO.inspect aa
+IO.inspect rest_childs
 
     child_values =
       cond do
         going_back ->
           cond do
             is_list(head_child) ->
+              IO.inspect "ooo"
+
               value =
                 metadata
                 |> Enum.map(fn i ->
@@ -74,16 +81,15 @@ defmodule Day8 do
                   end
                 end)
                 |> Enum.sum()
-                IO.inspect aa
-
-              IO.inspect rest_childs
-              IO.inspect head_child
 
               case rest_childs do
                 [vv | rr] when is_list(vv) ->
+                  IO.inspect "..."
                   [[value | vv] | rr]
 
                 [rr | rest] when is_integer(rr) ->
+                  IO.inspect "xxx"
+
                   [value, rr | rest]
               end
 
@@ -102,7 +108,8 @@ defmodule Day8 do
           end
 
         true ->
-          [Enum.sum(metadata) | head_child]
+          IO.inspect "HOOOl"
+         [ [Enum.sum(metadata) | head_child ] | rest_childs ] |> IO.inspect
       end
 
     case left do
