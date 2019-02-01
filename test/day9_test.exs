@@ -10,5 +10,16 @@ defmodule Day9Test do
     assert Day9.winning_score(30, 5807) == 37_305
   end
 
+  test "next_player" do
+    assert Day9.next_player(10,9) == 10
+    assert Day9.next_player(10,10) == 1
+  end
+
+  @tag :focus
+  test "next_pos_line" do
+    assert Day9.next_pos_line(0, [0], 1) == {1, [0,1]}
+    assert Day9.next_pos_line(3, [0,2,1,3], 4) == {1, [0,4,2,1,3]}
+    assert Day9.next_pos_line(1, [0,4,2,1,3], 5) == {3, [0,4,2,5,1,3]}
+  end
 
 end
