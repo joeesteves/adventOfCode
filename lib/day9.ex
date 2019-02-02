@@ -1,28 +1,58 @@
 defmodule Day9 do
   #
   def winning_score(players, last_marble) do
-    Enum.reduce(1..last_marble, {%{}, [0], 0, 1},fn curr_marble_value, {scores, line, curr_marble_position, curr_player } ->
+    [scores | _rest] =
+      Enum.reduce(1..last_marble, [%{}, 0, [0], 1], fn curr_value,
+                                                       [scores, curr_pos, curr_line, curr_player] ->
+        {next_pos, next_line, line_score} = next_pos_line(curr_pos, curr_line, curr_value)
 
-      {scores, line, next_player(players, curr_player)}
-    end)
+        scores = Map.update(scores, curr_player, line_score, &(&1 + line_score))
+
+        [scores, next_pos, next_line, next_player(players, curr_player)]
+      end)
+
+    Enum.map(scores, fn {k, v} -> v end)
+    |> Enum.max()
   end
 
   def next_player(players, curr_player) do
     case curr_player + 1 do
       n when n > players ->
         1
-      n -> n
+
+      n ->
+        n
     end
   end
 
-  def next_pos_line(curr_pos, curr_line, curr_marble_value) do
-    curr_line_size = length(curr_line)
-    next_pos = case curr_pos + 2 do
-      n when n > curr_line_size ->
-        n - curr_line_size
-      n -> n
-    end
-    next_line = List.insert_at(curr_line, next_pos, curr_marble_value)
-    {next_pos, next_line}
+  def next_pos_line(curr_pos, curr_line, curr_value) do
+    next_pos_line(curr_pos, curr_line, curr_value, rem(curr_value, 23), length(curr_line))
+  end
+
+  def next_pos_line(curr_pos, curr_line, curr_value, 0, size) do
+    {next_pos, add_score, next_line} =
+      case curr_pos - 7 do
+        n when n < 0 ->
+          Tuple.insert_at(List.pop_at(curr_line, size + n), 0, size+n)
+
+        n ->
+          Tuple.insert_at(List.pop_at(curr_line, n), 0, n)
+      end
+
+    {next_pos, next_line, curr_value + add_score}
+  end
+
+  def next_pos_line(curr_pos, curr_line, curr_value, _rem, size) do
+    next_pos =
+      case curr_pos + 2 do
+        n when n > size ->
+          n - size
+
+        n ->
+          n
+      end
+
+    next_line = List.insert_at(curr_line, next_pos, curr_value)
+    {next_pos, next_line, 0}
   end
 end
