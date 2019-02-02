@@ -11,8 +11,7 @@ defmodule Day9 do
         [scores, next_pos, next_line, next_player(players, curr_player)]
       end)
 
-    Enum.map(scores, fn {k, v} -> v end)
-    |> Enum.max()
+      Enum.max_by(scores, fn {x, v} -> v end)
   end
 
   def next_player(players, curr_player) do
