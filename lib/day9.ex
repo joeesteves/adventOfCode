@@ -1,9 +1,30 @@
+defmodule Day9.Circle do
+  def new(), do: {[], 0, []}
+  def current({_, current, _}), do: current
+
+  def rotate_cw({left, current, [head_right | tail]}), do: {push(left,current), head_right, tail}
+
+  def rotate_cw({[head_left | tail_left], current, []}),
+    do: {[], head_left, push(tail_left, current)}
+
+  def rotate_cw({[], current, []}), do: {[], current, []}
+
+  def add_marble({left, current, right}, value) do
+    {push(left,current), value, right}
+  end
+
+  def push(list, value) do
+    [value | Enum.reverse(list)]
+    |> Enum.reverse
+  end
+end
+
+
 defmodule Day9 do
   def winning_score(players, last_marble) do
     [scores | _rest] =
       Enum.reduce(1..last_marble, [%{}, 0, [0], 1], fn curr_value,
                                                        [scores, curr_pos, curr_line, curr_player] ->
-                                                        IO.puts curr_value
         {next_pos, next_line, line_score} = next_pos_line(curr_pos, curr_line, curr_value)
 
         scores = Map.update(scores, curr_player, line_score, &(&1 + line_score))
@@ -29,13 +50,13 @@ defmodule Day9 do
   end
 
   def next_pos_line(curr_pos, curr_line, curr_value, size) when rem(curr_value, 23) == 0 do
-    {next_pos, add_score, next_line} =
+    {{add_score, next_line}, next_pos} =
       case curr_pos - 7 do
         n when n < 0 ->
-          Tuple.insert_at(List.pop_at(curr_line, size + n), 0, size + n)
+          {List.pop_at(curr_line, size + n), size + n}
 
         n ->
-          Tuple.insert_at(List.pop_at(curr_line, n), 0, n)
+          {List.pop_at(curr_line, n), n}
       end
 
     {next_pos, next_line, curr_value + add_score}

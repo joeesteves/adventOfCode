@@ -1,5 +1,6 @@
 defmodule Day9Test do
   use ExUnit.Case
+  alias Day9.Circle
 
   test "winning_score" do
     assert Day9.winning_score(9, 25)     |> elem(1) == 32
@@ -10,6 +11,21 @@ defmodule Day9Test do
     assert Day9.winning_score(30, 5_807) |> elem(1) == 37_305
   end
 
+  @tag :circle
+  test "circle" do
+    circle = Circle.new()
+    assert Circle.current(circle) == 0
+    assert Circle.rotate_cw(circle) |> Circle.current == 0
+    circle2 = Circle.add_marble(circle, 1) |> Circle.rotate_cw |> Circle.add_marble(2)
+    assert circle2 |> Circle.rotate_cw |> Circle.current == 1
+    assert circle2 |> Circle.rotate_cw |> Circle.rotate_cw |> Circle.current == 0
+
+    # Circle.add_marble(circle, ) |> Circle.current == 1
+
+
+
+  end
+
   test "next_player" do
     assert Day9.next_player(10, 9) == 10
     assert Day9.next_player(10, 10) == 1
@@ -18,6 +34,15 @@ defmodule Day9Test do
   @tag :focus
   test "benchmark" do
     {time, val } = :timer.tc(fn -> Day9.winning_score(13, 7_999) |> elem(1) end)
+
+    IO.inspect time / :math.pow(10,6)
+
+    assert val == 146_373
+  end
+
+  @tag :focus
+  test "benchmark other" do
+    {time, val } = :timer.tc(fn -> Advent.Day9.high_score(13, 7_999) end)
 
     IO.inspect time / :math.pow(10,6)
 
