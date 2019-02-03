@@ -16,6 +16,14 @@ defmodule Day9Test do
   end
 
   @tag :focus
+  test "benchmark" do
+    {time, val } = :timer.tc(fn -> Day9.winning_score(13, 7_999) |> elem(1) end)
+
+    IO.inspect time / :math.pow(10,6)
+
+    assert val == 146_373
+  end
+
   test "next_pos_line" do
     assert Day9.next_pos_line(0, [0], 1) == {1, [0, 1], 0}
     assert Day9.next_pos_line(3, [0, 2, 1, 3], 4) == {1, [0, 4, 2, 1, 3], 0}

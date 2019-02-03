@@ -1,9 +1,9 @@
 defmodule Day9 do
-  #
   def winning_score(players, last_marble) do
     [scores | _rest] =
       Enum.reduce(1..last_marble, [%{}, 0, [0], 1], fn curr_value,
                                                        [scores, curr_pos, curr_line, curr_player] ->
+                                                        IO.puts curr_value
         {next_pos, next_line, line_score} = next_pos_line(curr_pos, curr_line, curr_value)
 
         scores = Map.update(scores, curr_player, line_score, &(&1 + line_score))
@@ -11,7 +11,7 @@ defmodule Day9 do
         [scores, next_pos, next_line, next_player(players, curr_player)]
       end)
 
-      Enum.max_by(scores, fn {x, v} -> v end)
+    Enum.max_by(scores, fn {x, v} -> v end)
   end
 
   def next_player(players, curr_player) do
@@ -25,14 +25,14 @@ defmodule Day9 do
   end
 
   def next_pos_line(curr_pos, curr_line, curr_value) do
-    next_pos_line(curr_pos, curr_line, curr_value, rem(curr_value, 23), length(curr_line))
+    next_pos_line(curr_pos, curr_line, curr_value, length(curr_line))
   end
 
-  def next_pos_line(curr_pos, curr_line, curr_value, 0, size) do
+  def next_pos_line(curr_pos, curr_line, curr_value, size) when rem(curr_value, 23) == 0 do
     {next_pos, add_score, next_line} =
       case curr_pos - 7 do
         n when n < 0 ->
-          Tuple.insert_at(List.pop_at(curr_line, size + n), 0, size+n)
+          Tuple.insert_at(List.pop_at(curr_line, size + n), 0, size + n)
 
         n ->
           Tuple.insert_at(List.pop_at(curr_line, n), 0, n)
@@ -41,7 +41,7 @@ defmodule Day9 do
     {next_pos, next_line, curr_value + add_score}
   end
 
-  def next_pos_line(curr_pos, curr_line, curr_value, _rem, size) do
+  def next_pos_line(curr_pos, curr_line, curr_value, size) do
     next_pos =
       case curr_pos + 2 do
         n when n > size ->
