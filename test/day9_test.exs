@@ -40,7 +40,7 @@ defmodule Day9Test do
     assert val == 146_373
   end
 
-  @tag :focus
+  @tag :other
   test "benchmark other" do
     {time, val } = :timer.tc(fn -> Advent.Day9.high_score(13, 7_999) end)
 

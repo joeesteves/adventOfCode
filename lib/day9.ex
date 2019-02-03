@@ -1,21 +1,31 @@
 defmodule Day9.Circle do
   def new(), do: {[], 0, []}
+
   def current({_, current, _}), do: current
 
-  def rotate_cw({left, current, [head_right | tail]}), do: {push(left,current), head_right, tail}
-
-  def rotate_cw({[head_left | tail_left], current, []}),
-    do: {[], head_left, push(tail_left, current)}
-
-  def rotate_cw({[], current, []}), do: {[], current, []}
-
-  def add_marble({left, current, right}, value) do
-    {push(left,current), value, right}
+  def rotate_cw({[first_left | left], current, []}) do
+    {[], first_left, append(left, current)}
   end
 
-  def push(list, value) do
-    [value | Enum.reverse(list)]
-    |> Enum.reverse
+  def rotate_cw({left, current, [right_first | right]}) do
+    {append(left, current), right_first, right}
+  end
+
+  def rotate_cww(circle, 0), do: circle
+
+  def rotate_cww({left, current, right}, n) do
+
+    {leftnew_current,[current | right]}
+  end
+
+  def rotate_cw(circle), do: circle
+
+  def add_marble({left, current, right}, value) do
+    {append(left,current), value, right}
+  end
+
+  def append(list, value) do
+    list ++ [value]
   end
 end
 
