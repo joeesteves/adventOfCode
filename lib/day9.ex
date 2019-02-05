@@ -1,88 +1,86 @@
 defmodule Day9.Circle do
-  def new(), do: {[], 0, []}
+  def new(), do: {[], [0]}
+  def current({_, [current | _]}), do: current
 
-  def current({_, current, _}), do: current
-
-  def rotate_cw({[first_left | left], current, []}) do
-    {[], first_left, append(left, current)}
+  def rotate_cw({left, [current | right]}) do
+    {[current | left], right}
   end
 
   def rotate_cw({left, current, [right_first | right]}) do
-    {append(left, current), right_first, right}
-  end
-
-  def rotate_cww(circle, 0), do: circle
-
-  def rotate_cww({left, current, right}, n) do
-
-    {leftnew_current,[current | right]}
+    {[current], right_first, right}
   end
 
   def rotate_cw(circle), do: circle
 
-  def add_marble({left, current, right}, value) do
-    {append(left,current), value, right}
+  def rotate_cww({left, current, right}) when length(left) > 6 do
+    {time, circle} =
+      :timer.tc(fn ->
+        dif = length(left) - 7
+        {left, [next_current | head_rigth]} = Enum.split(left, dif)
+        {left, next_current, head_rigth ++ [current] ++ right}
+      end)
+
+    IO.inspect("---CWW---")
+    IO.inspect(time)
+    circle
   end
 
-  def append(list, value) do
+  def rotate_cww({left, current, right}) do
+    {time, circle} =
+      :timer.tc(fn ->
+        dif = length(right) - (7 - length(left))
+        {tail_left, [next_current | new_right]} = Enum.split(right, dif)
+        {left ++ [current] ++ tail_left, next_current, new_right}
+      end)
+
+    IO.inspect("***CWW***")
+    IO.inspect(time)
+    circle
+  end
+
+  def extract({[head_left | left], current, []}) do
+    {current, {[], head_left, left}}
+  end
+
+  def extract({left, current, [head_right | right]}) do
+    {current, {left, head_right, right}}
+  end
+
+  def add_marble({left, current, right}, value) do
+    {append(left, current), value, right}
+  end
+
+  defp append(list, value) do
     list ++ [value]
   end
 end
 
-
 defmodule Day9 do
+  alias Day9.Circle
+
   def winning_score(players, last_marble) do
-    [scores | _rest] =
-      Enum.reduce(1..last_marble, [%{}, 0, [0], 1], fn curr_value,
-                                                       [scores, curr_pos, curr_line, curr_player] ->
-        {next_pos, next_line, line_score} = next_pos_line(curr_pos, curr_line, curr_value)
+    {scores, _} =
+      Stream.cycle(1..players)
+      |> Stream.zip(1..last_marble)
+      |> Enum.reduce({%{}, Circle.new()}, fn {player, marble}, {scores, circle} ->
+        cond do
+          rem(marble, 23) == 0 ->
+            {value, circle} =
+              Circle.rotate_cww(circle)
+              |> Circle.extract()
 
-        scores = Map.update(scores, curr_player, line_score, &(&1 + line_score))
+            scores = Map.update(scores, player, value + marble, &(&1 + value + marble))
+            {scores, circle}
 
-        [scores, next_pos, next_line, next_player(players, curr_player)]
+          true ->
+            circle =
+              Circle.rotate_cw(circle)
+              |> Circle.add_marble(marble)
+
+            {scores, circle}
+        end
       end)
 
     Enum.max_by(scores, fn {x, v} -> v end)
-  end
-
-  def next_player(players, curr_player) do
-    case curr_player + 1 do
-      n when n > players ->
-        1
-
-      n ->
-        n
-    end
-  end
-
-  def next_pos_line(curr_pos, curr_line, curr_value) do
-    next_pos_line(curr_pos, curr_line, curr_value, length(curr_line))
-  end
-
-  def next_pos_line(curr_pos, curr_line, curr_value, size) when rem(curr_value, 23) == 0 do
-    {{add_score, next_line}, next_pos} =
-      case curr_pos - 7 do
-        n when n < 0 ->
-          {List.pop_at(curr_line, size + n), size + n}
-
-        n ->
-          {List.pop_at(curr_line, n), n}
-      end
-
-    {next_pos, next_line, curr_value + add_score}
-  end
-
-  def next_pos_line(curr_pos, curr_line, curr_value, size) do
-    next_pos =
-      case curr_pos + 2 do
-        n when n > size ->
-          n - size
-
-        n ->
-          n
-      end
-
-    next_line = List.insert_at(curr_line, next_pos, curr_value)
-    {next_pos, next_line, 0}
   end
 end
