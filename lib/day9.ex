@@ -6,8 +6,8 @@ defmodule Day9.Circle do
     {[current | left], right}
   end
 
-  def rotate_cw({left, current, [right_first | right]}) do
-    {[current], right_first, right}
+  def rotate_cw({left, []}) do
+    rotate_cw({[], Enum.reverse(left)})
   end
 
   def rotate_cw(circle), do: circle
