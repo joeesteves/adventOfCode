@@ -35,29 +35,36 @@ defmodule Day9 do
   alias Day9.Circle
 
   def winning_score(players, last_marble) do
-    {scores, _} =
-      Stream.cycle(1..players)
+    :ets.new(:scores, [:named_table])
+      1..players
+      |> Enum.into([])
+      |> Stream.cycle()
       |> Stream.zip(1..last_marble)
-      |> Enum.reduce({%{}, Circle.new()}, fn {player, marble}, {scores, circle} ->
+      |> Enum.reduce(Circle.new(), fn {player, marble}, circle ->
         cond do
           rem(marble, 23) == 0 ->
-            {value, circle} = Enum.reduce(1..7, circle, fn _, acc ->
+            {value, circle} =
+              Enum.reduce(1..7, circle, fn _, acc ->
                 Circle.rotate_cww(acc)
               end)
               |> Circle.extract()
 
-            scores = Map.update(scores, player, value + marble, &(&1 + value + marble))
-            {scores, circle}
+            points = marble + value
+
+            unless :ets.insert_new(:scores, {player, points}) do
+              curr_score = :ets.lookup_element(:scores, player, 2)
+              :ets.update_element(:scores, player, {2, (curr_score + points)})
+            end
+
+            circle
 
           true ->
-            circle =
-              Circle.rotate_cw(circle)
-              |> Circle.add_marble(marble)
-
-            {scores, circle}
+            Circle.rotate_cw(circle)
+            |> Circle.add_marble(marble)
         end
       end)
 
-      Map.values(scores) |> Enum.max
-  end
+      [val | _] = :ets.match(:scores, {:_, :"$1"}) |> Enum.max_by(fn [x | _] -> x end)
+      val
+    end
 end
