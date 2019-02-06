@@ -58,5 +58,6 @@ defmodule Day9 do
         end
       end)
 
+      Map.values(scores) |> Enum.max
   end
 end
