@@ -14,3 +14,5 @@ def play_game(max_players, last_marble):
             circle.append(marble)
 
     return max(scores.values()) if scores else 0
+
+print(play_game(452,7_125_000))
