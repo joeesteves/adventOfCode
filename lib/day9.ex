@@ -63,7 +63,7 @@ defmodule Day9 do
             |> Circle.add_marble(marble)
         end
       end)
-      [val | _] = :ets.match(:scores, {:"_", :"$1"}) |> Enum.max_by(fn [x | _] -> x end)
+      [val | _] = :ets.match(:scores, {:_, :"$1"}) |> Enum.max_by(fn [x | _] -> x end)
       val
     end
 end
