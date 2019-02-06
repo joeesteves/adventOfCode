@@ -2,57 +2,35 @@ defmodule Day9.Circle do
   def new(), do: {[], [0]}
   def current({_, [current | _]}), do: current
 
+  def rotate_cw({[], [0]}) do
+    new()
+  end
+
+  def rotate_cw({left, [current | [] ]}) do
+    rotate_cw({[], [current | Enum.reverse(left)]})
+  end
+
   def rotate_cw({left, [current | right]}) do
-    {[current | left], right}
+    {[current | left] ,right}
   end
 
-  def rotate_cw({left, []}) do
-    rotate_cw({[], Enum.reverse(left)})
+  def rotate_cww({[current | left], right}) do
+    {left, [current | right]}
   end
 
-  def rotate_cw(circle), do: circle
-
-  def rotate_cww({left, current, right}) when length(left) > 6 do
-    {time, circle} =
-      :timer.tc(fn ->
-        dif = length(left) - 7
-        {left, [next_current | head_rigth]} = Enum.split(left, dif)
-        {left, next_current, head_rigth ++ [current] ++ right}
-      end)
-
-    IO.inspect("---CWW---")
-    IO.inspect(time)
-    circle
+  def rotate_cww({[], right}) do
+    {Enum.reverse(right), []}
+    |> rotate_cww
   end
 
-  def rotate_cww({left, current, right}) do
-    {time, circle} =
-      :timer.tc(fn ->
-        dif = length(right) - (7 - length(left))
-        {tail_left, [next_current | new_right]} = Enum.split(right, dif)
-        {left ++ [current] ++ tail_left, next_current, new_right}
-      end)
-
-    IO.inspect("***CWW***")
-    IO.inspect(time)
-    circle
+  def extract({left, [current | right]}) do
+    {current, {left, right}}
   end
 
-  def extract({[head_left | left], current, []}) do
-    {current, {[], head_left, left}}
+  def add_marble({left, [current | right]}, marble) do
+    {[current | left], [marble | right] }
   end
 
-  def extract({left, current, [head_right | right]}) do
-    {current, {left, head_right, right}}
-  end
-
-  def add_marble({left, current, right}, value) do
-    {append(left, current), value, right}
-  end
-
-  defp append(list, value) do
-    list ++ [value]
-  end
 end
 
 defmodule Day9 do
@@ -66,8 +44,10 @@ defmodule Day9 do
         cond do
           rem(marble, 23) == 0 ->
             {value, circle} =
-              Circle.rotate_cww(circle)
-              |> Circle.extract()
+            1..7 |> Enum.reduce(circle, fn _, acc ->
+              Circle.rotate_cww(acc)
+            end)
+            |> Circle.extract()
 
             scores = Map.update(scores, player, value + marble, &(&1 + value + marble))
             {scores, circle}
@@ -76,7 +56,6 @@ defmodule Day9 do
             circle =
               Circle.rotate_cw(circle)
               |> Circle.add_marble(marble)
-
             {scores, circle}
         end
       end)

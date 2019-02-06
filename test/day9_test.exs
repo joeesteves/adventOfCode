@@ -18,24 +18,23 @@ defmodule Day9Test do
     assert Circle.rotate_cw({[1, 2], 10, [3, 4, 5, 6, 7, 8, 9]}) == {[1,2,10], 3, [4, 5, 6, 7, 8, 9]}
   end
 
-  @tag :circle
+  @tag :cww
   test "rotate_cww" do
-    assert Circle.rotate_cww({[1, 2, 3, 4, 5, 6, 7, 8, 9], 10, []}) == {[1, 2], 3, [4, 5, 6, 7, 8, 9,10]}
-    assert Circle.rotate_cww({[1, 2], 10, [3, 4, 5, 6, 7, 8, 9]}) == {[1, 2, 10, 3, 4], 5, [6, 7, 8, 9]}
-    assert Circle.rotate_cww({[2, 3, 4, 5, 6] , 8, [9,1]}) |> Circle.current() == 9
+    assert Circle.rotate_cww({[1, 2, 3, 4, 5, 6, 7, 8, 9], [10]}) == {[1, 2], [3, 4, 5, 6, 7, 8, 9, 10]}
 
+    assert Circle.rotate_cww({[1, 2], [10, 3, 4, 5, 6, 7, 8, 9]}) == {[1, 2, 10, 3, 4],[5, 6, 7, 8, 9]}
   end
 
-  @tag :circle
+  @tag :extract
   test "extract" do
-    assert Circle.extract({[1, 2, 3, 4, 5, 6, 7, 8, 9], 10, []}) ==
-             {10, {[], 1, [2, 3, 4, 5, 6, 7, 8, 9]}}
+    assert Circle.extract({[1, 2, 3, 4, 5, 6, 7, 8, 9], [10]}) ==
+             {10, {[1, 2, 3, 4, 5, 6, 7, 8, 9], []}}
 
-    assert Circle.extract({[1, 2], 10, [3, 4, 5, 6, 7, 8, 9]}) ==
-             {10, {[1, 2], 3, [4, 5, 6, 7, 8, 9]}}
+    assert Circle.extract({[1, 2], [10, 3, 4, 5, 6, 7, 8, 9]}) ==
+             {10, {[1, 2], [3, 4, 5, 6, 7, 8, 9]}}
 
-    assert Circle.extract({[1, 2], 10, []}) ==
-             {10, {[], 1, [2]}}
+    assert Circle.extract({[1, 2], [10]}) ==
+             {10, {[1,2], []}}
   end
 
   test "next_player" do
